@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgroMáquinas – Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
+
+  <!-- TOPBAR ADMINISTRATIVA -->
+  <!-- LINK DE RETORNO AO SITE DO CLIENTE REMOVIDO INTENCIONALMENTE -->
+  <nav class="admin-topbar">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <button class="topbar-hamburger" id="sidebarToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <!--
+        LOGO NA TOPBAR DO ADMIN:
+        O arquivo deve estar na mesma pasta que admin.html.
+      -->
+      <a href="admin.html" class="nav-logo">
+        <img src="Logo AgroMáquinas remodelado.png" alt="AgroMáquinas" class="nav-logo-img" />
+      </a>
+      <span style="color:var(--yellow);font-size:.78rem;font-weight:600;
+                   background:rgba(255,213,51,.15);border:1px solid rgba(255,213,51,.3);
+                   padding:3px 10px;border-radius:999px;">
+        Painel Admin
+      </span>
+    </div>
+    <div class="topbar-right">
+      <span class="admin-greeting">Bem-vindo, Administrador</span>
+      <!-- BOTÃO "← Site" REMOVIDO INTENCIONALMENTE -->
+    </div>
+  </nav>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <div class="admin-main">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="mini-calendar">
+        <p class="sidebar-title">Calendário</p>
+        <div class="mini-cal-header">
+          <button class="mini-cal-nav" id="miniPrev">‹</button>
+          <span id="miniMesAno"></span>
+          <button class="mini-cal-nav" id="miniNext">›</button>
+        </div>
+        <div class="mini-cal-grid-header">
+          <span>D</span><span>S</span><span>T</span><span>Q</span>
+          <span>Q</span><span>S</span><span>S</span>
+        </div>
+        <div class="mini-cal-grid" id="miniCalGrid"></div>
+      </div>
+
+      <div class="sidebar-stats">
+        <h4>Resumo do Mês</h4>
+        <div class="stat-card-mini">
+          <span class="s-icon">📅</span>
+          <div class="s-info">
+            <span class="s-num" id="statTotal">–</span>
+            <span class="s-label">Total agendamentos</span>
+          </div>
+        </div>
+        <div class="stat-card-mini">
+          <span class="s-icon">⏳</span>
+          <div class="s-info">
+            <span class="s-num" id="statPendente">–</span>
+            <span class="s-label">Pendentes</span>
+          </div>
+        </div>
+        <div class="stat-card-mini">
+          <span class="s-icon">✅</span>
+          <div class="s-info">
+            <span class="s-num" id="statFinalizado">–</span>
+            <span class="s-label">Finalizados</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="admin-content">
+      <div class="admin-content-header">
+        <div>
+          <h2 id="contentTitle">Agendamentos de Hoje</h2>
+          <p id="contentSubtitle">Selecione um agendamento para ver os detalhes</p>
+        </div>
+        <div class="admin-filters">
+          <button class="filter-btn active" data-filter="todos"
+            onclick="setFilter('todos', this)">Todos</button>
+          <button class="filter-btn" data-filter="pendente"
+            onclick="setFilter('pendente', this)">Pendentes</button>
+          <button class="filter-btn" data-filter="em-andamento"
+            onclick="setFilter('em-andamento', this)">Em Andamento</button>
+          <button class="filter-btn" data-filter="finalizado"
+            onclick="setFilter('finalizado', this)">Finalizados</button>
+        </div>
+      </div>
+
+      <div class="agendamentos-list" id="agendamentosList">
+        <div class="empty-state">
+          <span class="empty-icon">🗓️</span>
+          <h3>Carregando agendamentos...</h3>
+          <p>Aguarde um momento.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL DE DETALHES DO AGENDAMENTO -->
+  <div class="detail-modal-overlay" id="detailOverlay" onclick="closeDetail(event)">
+    <div class="detail-modal" id="detailModal">
+
+      <div class="detail-header">
+        <div class="detail-header-info">
+          <h3 id="dh-client">–</h3>
+          <p id="dh-datetime">–</p>
+        </div>
+        <button class="detail-close" onclick="closeDetailModal()">✕</button>
+      </div>
+
+      <div class="detail-body">
+
+        <!-- STATUS -->
+        <div class="detail-section">
+          <h4>Status</h4>
+          <span class="detail-badge" id="d-status-badge">–</span>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;" id="statusButtons">
+            <button class="filter-btn" onclick="updateStatus('pendente')">⏳ Pendente</button>
+            <button class="filter-btn" onclick="updateStatus('em-andamento')">🔧 Em Andamento</button>
+          </div>
+        </div>
+
+        <!-- CLIENTE -->
+        <div class="detail-section">
+          <h4>Cliente</h4>
+          <div class="detail-row"><label>Nome</label><span id="d-nome">–</span></div>
+          <div class="detail-row"><label>Documento</label><span id="d-doc">–</span></div>
+          <div class="detail-row"><label>Telefone</label><span id="d-tel">–</span></div>
+          <div class="detail-row"><label>E-mail</label><span id="d-email">–</span></div>
+        </div>
+
+        <!-- SERVIÇO -->
+        <div class="detail-section">
+          <h4>Serviço</h4>
+          <div class="detail-row"><label>Tipo de Serviço</label><span id="d-servico">–</span></div>
+          <div class="detail-row"><label>Maquinário</label><span id="d-maquina">–</span></div>
+          <div class="detail-row"><label>Marca / Modelo</label><span id="d-modelo">–</span></div>
+          <div class="detail-row"><label>Ano</label><span id="d-ano">–</span></div>
+          <div class="detail-row">
+            <label>Problema / Descrição</label>
+            <span id="d-problema" style="white-space:pre-wrap">–</span>
+          </div>
+        </div>
+
+        <!-- LOCALIZAÇÃO + MAPA -->
+        <!--
+          MAPA DO GOOGLE MAPS:
+          Configure a variável MAPS_KEY em admin.js para exibir o mapa incorporado.
+          Sem a chave, o sistema exibe um botão "Ver no Google Maps".
+
+          COMO OBTER A CHAVE:
+          1. Acesse https://console.cloud.google.com/
+          2. Crie um projeto → APIs e Serviços → Biblioteca
+          3. Ative a "Maps Embed API"
+          4. Credenciais → Criar credencial → Chave de API
+          5. Cole a chave na variável MAPS_KEY dentro do arquivo admin.js
+        -->
+        <div class="detail-section">
+          <h4>Localização</h4>
+          <div class="detail-row"><label>Endereço / Fazenda</label><span id="d-local">–</span></div>
+          <div class="map-container" id="mapContainer">
+            <div class="map-placeholder">
+              <span>📍</span>
+              <p>Carregando mapa...</p>
+            </div>
+          </div>
+          <p style="font-size:.72rem;color:var(--text-muted);margin-top:4px;">
+            Localização aproximada com base no endereço informado pelo cliente.
+          </p>
+        </div>
+
+        <!-- RELATÓRIO DE CONCLUSÃO -->
+        <div class="detail-section">
+          <div class="finalizacao-section" id="finalizacaoSection">
+            <h4>🔧 Relatório de Conclusão</h4>
+            <div id="finalizacaoContent">
+              <textarea id="relatorioText" rows="4"
+                placeholder="Descreva o que foi realizado, peças trocadas, observações técnicas...">
+              </textarea>
+              <button class="btn-finalizar" onclick="finalizarServico()">
+                ✅ Marcar como Finalizado
+              </button>
+            </div>
+            <div id="finalizadoInfo" style="display:none" class="finalizado-info">
+              <strong>✅ Serviço Finalizado</strong>
+              <span id="finalizadoRelatorio"></span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /detail-body -->
+    </div>
+  </div>
+
+  <!--
+    SCRIPTS – ordem obrigatória: utils.js → calendar.js → admin.js
+    Todos os arquivos devem estar na mesma pasta que admin.html.
+  -->
+  <script src="utils.js"></script>
+  <script src="calendar.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

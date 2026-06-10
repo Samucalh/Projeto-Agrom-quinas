@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgroMáquinas – Agendamento de Manutenção</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="client.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="Logo AgroMáquinas remodelado.png" alt="AgroMáquinas" class="nav-logo-img" />
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#servicos">Serviços</a></li>
+        <li><a href="#agendar">Agendar</a></li>
+        <li><a href="#contato">Contato</a></li>
+        <!-- BOTÃO ÁREA ADMIN REMOVIDO INTENCIONALMENTE -->
+        <!-- O cliente não deve ter acesso à área administrativa -->
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-bg-grain"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🌾 Manutenção Especializada no Campo</div>
+      <div class="hero-logo-wrapper">
+        <!--
+          LOGO DA EMPRESA:
+          O arquivo deve se chamar exatamente "Logo AgroMáquinas remodelado.png"
+          e estar na mesma pasta que este index.html.
+          Se renomear o arquivo, atualize o src abaixo.
+        -->
+        <img
+          src="Logo AgroMáquinas remodelado.png"
+          alt="AgroMáquinas – Serviços em Máquinas Agrícolas"
+          class="hero-logo-img"
+        />
+      </div>
+      <div class="hero-cta">
+        <a href="#agendar" class="btn-primary">Agendar Manutenção</a>
+        <a href="#servicos" class="btn-ghost">Ver Serviços</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-float card-1">
+        <span class="card-icon">🚜</span>
+        <span>Trator John Deere</span>
+        <span class="card-status ok">✓ Revisão Agendada</span>
+      </div>
+      <div class="hero-card-float card-2">
+        <span class="card-icon">🌽</span>
+        <span>Colheitadeira</span>
+        <span class="card-status pend">⏳ Em atendimento</span>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Rolar para baixo</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- SOBRE -->
+  <section class="sobre" id="sobre">
+    <div class="container">
+      <div class="section-label">Quem Somos</div>
+      <div class="sobre-grid">
+        <div class="sobre-text">
+          <h2>Especializados em maquinário <span class="accent">agrícola</span></h2>
+          <p>A AgroMáquinas é uma empresa dedicada à manutenção preventiva e corretiva de máquinas e equipamentos agrícolas. Atendemos produtores rurais com agilidade, levando técnicos especializados até a sua propriedade.</p>
+          <div class="stats-row">
+            <div class="stat"><span class="stat-num">+500</span><span>Clientes atendidos</span></div>
+            <div class="stat"><span class="stat-num">8+</span><span>Anos de experiência</span></div>
+            <div class="stat"><span class="stat-num">98%</span><span>Satisfação</span></div>
+          </div>
+        </div>
+        <div class="sobre-image-col">
+          <!--
+            IMAGEM DA SEÇÃO "SOBRE":
+            Substitua este bloco por uma <img> quando tiver foto da equipe.
+            Exemplo: <img src="foto-equipe.jpg" alt="Equipe em campo" class="sobre-foto" />
+            Tamanho recomendado: 800x600px, JPG ou WebP.
+          -->
+          <div class="image-placeholder-block">
+            <span>🚜</span>
+            <p>Equipe especializada no campo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVIÇOS -->
+  <section class="servicos" id="servicos">
+    <div class="container">
+      <div class="section-label">O que fazemos</div>
+      <h2 class="section-title">Nossos <span class="accent">Serviços</span></h2>
+      <div class="servicos-grid">
+        <div class="servico-card">
+          <div class="servico-icon">🔧</div>
+          <h3>Manutenção Preventiva</h3>
+          <p>Revisões periódicas para evitar paradas inesperadas na lavoura e garantir a produtividade.</p>
+        </div>
+        <div class="servico-card">
+          <div class="servico-icon">⚙️</div>
+          <h3>Manutenção Corretiva</h3>
+          <p>Diagnóstico e reparo rápido de falhas mecânicas, hidráulicas e elétricas em campo.</p>
+        </div>
+        <div class="servico-card">
+          <div class="servico-icon">🛢️</div>
+          <h3>Troca de Fluidos</h3>
+          <p>Troca de óleo, filtros, fluido hidráulico e lubrificação geral de componentes.</p>
+        </div>
+        <div class="servico-card">
+          <div class="servico-icon">⚡</div>
+          <h3>Sistema Elétrico</h3>
+          <p>Revisão e reparo do sistema elétrico, sensores e painel de controle das máquinas.</p>
+        </div>
+        <div class="servico-card">
+          <div class="servico-icon">🔩</div>
+          <h3>Calibração e Regulagem</h3>
+          <p>Calibração de plantadeiras, colheitadeiras e implementos para maior precisão no trabalho.</p>
+        </div>
+        <div class="servico-card">
+          <div class="servico-icon">🔍</div>
+          <h3>Diagnóstico Técnico</h3>
+          <p>Avaliação completa do estado do equipamento com relatório detalhado do diagnóstico.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULÁRIO DE AGENDAMENTO -->
+  <!--
+    IMPORTANTE – CONEXÃO COM O BACKEND:
+    Este formulário envia dados para a API Python (app.py).
+    O endereço da API é configurado em utils.js (variável API_BASE).
+    Certifique-se de que o backend está rodando antes de testar.
+  -->
+  <section class="agendamento" id="agendar">
+    <div class="container">
+      <div class="section-label">Agende agora</div>
+      <h2 class="section-title">Faça seu <span class="accent">Agendamento</span></h2>
+      <p class="section-sub">Preencha os dados abaixo e escolha o melhor horário disponível.</p>
+
+      <div class="form-wrapper">
+        <!-- INDICADOR DE PASSOS -->
+        <div class="steps-bar">
+          <div class="step active" data-step="1">
+            <div class="step-circle">1</div>
+            <span>Seus Dados</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" data-step="2">
+            <div class="step-circle">2</div>
+            <span>Serviço</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" data-step="3">
+            <div class="step-circle">3</div>
+            <span>Horário</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" data-step="4">
+            <div class="step-circle">4</div>
+            <span>Confirmar</span>
+          </div>
+        </div>
+
+        <form id="agendamentoForm" novalidate>
+
+          <!-- PASSO 1: DADOS DO CLIENTE -->
+          <div class="form-step active" id="step1">
+            <h3 class="form-step-title">Dados do Cliente</h3>
+            <div class="form-grid">
+              <div class="form-group full">
+                <label for="nomeCliente">Nome completo ou Razão Social *</label>
+                <input type="text" id="nomeCliente" name="nomeCliente"
+                  placeholder="Ex: João da Silva ou Fazenda Boa Vista Ltda." required />
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group">
+                <label for="documento">CPF ou CNPJ *</label>
+                <input type="text" id="documento" name="documento"
+                  placeholder="000.000.000-00 ou 00.000.000/0000-00" required />
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group">
+                <label for="telefone">Telefone / WhatsApp *</label>
+                <input type="tel" id="telefone" name="telefone"
+                  placeholder="(00) 00000-0000" required />
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group full">
+                <label for="email">E-mail *</label>
+                <input type="email" id="email" name="email"
+                  placeholder="seuemail@exemplo.com" required />
+                <span class="error-msg"></span>
+              </div>
+            </div>
+            <div class="form-nav">
+              <!-- PASSO 1: apenas botão Próximo (sem Voltar) -->
+              <button type="button" class="btn-next" onclick="nextStep(1)">
+                Próximo <span>→</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- PASSO 2: DADOS DO SERVIÇO -->
+          <div class="form-step" id="step2">
+            <h3 class="form-step-title">Informações do Serviço</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="tipoServico">Tipo de Serviço *</label>
+                <select id="tipoServico" name="tipoServico" required>
+                  <option value="">Selecione o serviço...</option>
+                  <option>Manutenção Preventiva</option>
+                  <option>Manutenção Corretiva</option>
+                  <option>Troca de Fluidos e Filtros</option>
+                  <option>Sistema Elétrico</option>
+                  <option>Calibração e Regulagem</option>
+                  <option>Diagnóstico Técnico</option>
+                  <option>Outro</option>
+                </select>
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group">
+                <label for="tipoMaquina">Tipo de Maquinário / Equipamento *</label>
+                <select id="tipoMaquina" name="tipoMaquina" required>
+                  <option value="">Selecione o tipo...</option>
+                  <option>Trator</option>
+                  <option>Colheitadeira</option>
+                  <option>Plantadeira</option>
+                  <option>Pulverizador</option>
+                  <option>Forrageira</option>
+                  <option>Grade / Arado</option>
+                  <option>Roçadeira</option>
+                  <option>Outro implemento</option>
+                </select>
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group">
+                <label for="marcaModelo">Marca e Modelo *</label>
+                <input type="text" id="marcaModelo" name="marcaModelo"
+                  placeholder="Ex: John Deere 5075E" required />
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group">
+                <label for="anoMaquina">Ano (aprox.)</label>
+                <input type="number" id="anoMaquina" name="anoMaquina"
+                  placeholder="Ex: 2019" min="1970" max="2030" />
+              </div>
+              <div class="form-group full">
+                <label for="problemaDescricao">Descrição do Problema / Serviço necessário *</label>
+                <textarea id="problemaDescricao" name="problemaDescricao" rows="4"
+                  placeholder="Descreva o problema ou o que precisa ser feito. Ex: Trator perdendo potência, fumaça escura ao ligar, barulho no motor..."
+                  required></textarea>
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group full">
+                <label for="localizacao">Localização (Endereço ou nome da Fazenda + ponto de referência) *</label>
+                <input type="text" id="localizacao" name="localizacao"
+                  placeholder="Ex: Fazenda Santa Clara, Rodovia BR-163 km 45, município de..."
+                  required />
+                <span class="error-msg"></span>
+              </div>
+            </div>
+            <div class="form-nav">
+              <!-- PASSO 2: Voltar → passo 1 | Próximo → passo 3 -->
+              <button type="button" class="btn-back" onclick="prevStep(2)">← Voltar</button>
+              <button type="button" class="btn-next" onclick="nextStep(2)">Próximo <span>→</span></button>
+            </div>
+          </div>
+
+          <!-- PASSO 3: ESCOLHA DO HORÁRIO -->
+          <div class="form-step" id="step3">
+            <h3 class="form-step-title">Escolha a Data e Horário</h3>
+            <div class="calendar-section">
+              <div class="calendar-header">
+                <button type="button" class="cal-nav" id="prevMonth">‹</button>
+                <span id="mesAno"></span>
+                <button type="button" class="cal-nav" id="nextMonth">›</button>
+              </div>
+              <div class="calendar-grid-header">
+                <span>Dom</span><span>Seg</span><span>Ter</span>
+                <span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+              </div>
+              <div class="calendar-grid" id="calendarGrid"></div>
+              <div class="time-slots-section" id="timeSlotsSection" style="display:none">
+                <h4 id="selectedDateLabel"></h4>
+                <div class="time-slots-grid" id="timeSlotsGrid"></div>
+              </div>
+              <input type="hidden" id="dataSelecionada"    name="dataSelecionada" />
+              <input type="hidden" id="horarioSelecionado" name="horarioSelecionado" />
+              <span class="error-msg" id="horarioError"></span>
+            </div>
+            <div class="form-nav">
+              <!-- PASSO 3: Voltar → passo 2 | Próximo → passo 4 -->
+              <button type="button" class="btn-back" onclick="prevStep(3)">← Voltar</button>
+              <button type="button" class="btn-next" onclick="nextStep(3)">Próximo <span>→</span></button>
+            </div>
+          </div>
+
+          <!-- PASSO 4: CONFIRMAÇÃO -->
+          <div class="form-step" id="step4">
+            <h3 class="form-step-title">Confirmar Agendamento</h3>
+            <div class="resumo-card">
+              <div class="resumo-section">
+                <h4>👤 Dados do Cliente</h4>
+                <div class="resumo-grid">
+                  <div><strong>Nome:</strong> <span id="r-nome"></span></div>
+                  <div><strong>Documento:</strong> <span id="r-doc"></span></div>
+                  <div><strong>Telefone:</strong> <span id="r-tel"></span></div>
+                  <div><strong>E-mail:</strong> <span id="r-email"></span></div>
+                </div>
+              </div>
+              <div class="resumo-section">
+                <h4>🔧 Dados do Serviço</h4>
+                <div class="resumo-grid">
+                  <div><strong>Serviço:</strong> <span id="r-servico"></span></div>
+                  <div><strong>Maquinário:</strong> <span id="r-maquina"></span></div>
+                  <div><strong>Marca/Modelo:</strong> <span id="r-modelo"></span></div>
+                  <div><strong>Localização:</strong> <span id="r-local"></span></div>
+                  <div class="full"><strong>Problema:</strong> <span id="r-problema"></span></div>
+                </div>
+              </div>
+              <div class="resumo-section">
+                <h4>📅 Data e Horário</h4>
+                <div class="resumo-grid">
+                  <div><strong>Data:</strong> <span id="r-data"></span></div>
+                  <div><strong>Horário:</strong> <span id="r-horario"></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-nav">
+              <!-- PASSO 4: Voltar → passo 3 | Confirmar → envia ao backend -->
+              <button type="button" class="btn-back" onclick="prevStep(4)">← Voltar</button>
+              <button type="submit" class="btn-submit" id="btnSubmit">
+                <span class="btn-text">✓ Confirmar Agendamento</span>
+                <span class="btn-loading" style="display:none">⟳ Aguarde...</span>
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <!--
+    DADOS DE CONTATO:
+    Atualize telefone, e-mail e endereço abaixo com as informações reais.
+  -->
+  <section class="contato" id="contato">
+    <div class="container">
+      <div class="contato-grid">
+        <div class="contato-info">
+          <div class="section-label">Fale conosco</div>
+          <h2>Dúvidas? <span class="accent">Entre em contato</span></h2>
+          <p>Para serviços de maior urgência ou dúvidas, entre em contato diretamente pelos nossos canais.</p>
+          <div class="contato-items">
+            <div class="contato-item">
+              <span class="ci-icon">📱</span>
+              <div>
+                <strong>WhatsApp</strong>
+                <!-- SUBSTITUA pelo número real de WhatsApp -->
+                <span>(34) 99974-6919</span>
+              </div>
+            </div>
+            <div class="contato-item">
+              <span class="ci-icon">✉️</span>
+              <div>
+                <strong>E-mail</strong>
+                <!-- SUBSTITUA pelo e-mail real -->
+                <span>contato@agromaquinas.com.br</span>
+              </div>
+            </div>
+            <div class="contato-item">
+              <span class="ci-icon">📍</span>
+              <div>
+                <strong>Endereço</strong>
+                <!-- SUBSTITUA pelo endereço real -->
+                <span>Frutal / Minas Gerais</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="contato-horarios">
+          <h3>Horário de Atendimento</h3>
+          <div class="horario-item"><span>Segunda a Sexta</span><strong>07h – 18h</strong></div>
+          <div class="horario-item"><span>Sábado</span><strong>07h – 12h</strong></div>
+          <div class="horario-item destaque"><span>Urgências</span><strong>24h / 7 dias</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <!-- LINK PARA ÁREA ADMIN REMOVIDO DO FOOTER INTENCIONALMENTE -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="Logo AgroMáquinas remodelado.png" alt="AgroMáquinas" class="footer-logo-img" />
+        </div>
+        <p>Especialistas em manutenção de maquinário agrícola.</p>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 AgroMáquinas. Todos os direitos reservados.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL DE SUCESSO -->
+  <div class="modal-overlay" id="modalSucesso">
+    <div class="modal-box">
+      <div class="modal-icon">✅</div>
+      <h2>Agendamento Confirmado!</h2>
+      <p>Seu agendamento foi realizado com sucesso. Em breve nossa equipe entrará em contato para confirmar os detalhes.</p>
+      <div class="modal-detail" id="modalDetail"></div>
+      <button class="btn-primary" onclick="fecharModal()">Fechar</button>
+    </div>
+  </div>
+
+  <!--
+    SCRIPTS – ordem obrigatória: utils.js → calendar.js → client.js
+    Todos os arquivos devem estar na mesma pasta que o index.html.
+  -->
+  <script src="utils.js"></script>
+  <script src="calendar.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>

@@ -185,6 +185,13 @@
           <!-- PASSO 1: DADOS DO CLIENTE -->
           <div class="form-step active" id="step1">
             <h3 class="form-step-title">Dados do Cliente</h3>
+            <!--
+              AVISO de cliente já cadastrado:
+              É preenchido por client.js → tryLookupCliente() quando o usuário
+              digita um CPF/CNPJ que já existe na base. Os outros campos são
+              autopreenchidos automaticamente.
+            -->
+            <div class="cliente-aviso" id="clienteAviso" style="display:none"></div>
             <div class="form-grid">
               <div class="form-group full">
                 <label for="nomeCliente">Nome completo ou Razão Social *</label>

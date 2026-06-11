@@ -1,0 +1,37 @@
+# =============================================
+# AgroMáquinas – Arquivos que NUNCA devem ir
+# para o repositório (Git)
+# =============================================
+
+# Variáveis de ambiente com credenciais reais.
+# CONTÉM A service_role KEY do Supabase — vazamento aqui é GRAVE.
+.env
+.env.local
+.env.*.local
+
+# Ambiente virtual do Python (instalações locais)
+venv/
+.venv/
+env/
+ENV/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/

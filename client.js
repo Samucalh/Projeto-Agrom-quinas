@@ -27,10 +27,47 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initMasks() {
-  document.getElementById('documento')
-    ?.addEventListener('input', e => { e.target.value = maskCPFCNPJ(e.target.value); });
+  const docEl = document.getElementById('documento');
+  docEl?.addEventListener('input', e => { e.target.value = maskCPFCNPJ(e.target.value); });
+  docEl?.addEventListener('blur',  () => tryLookupCliente());
+
   document.getElementById('telefone')
     ?.addEventListener('input', e => { e.target.value = maskPhone(e.target.value); });
+}
+
+// ── Autopreenchimento de cliente já cadastrado ────────────────
+// Quando o usuário sai do campo CPF/CNPJ, se o documento for válido,
+// consulta o backend para descobrir se esse cliente já está cadastrado.
+// Em caso positivo, preenche nome / telefone / e-mail automaticamente
+// e mostra um aviso discreto. Os campos continuam editáveis — se o
+// cliente trocou de telefone, basta sobrescrever que o backend atualiza
+// no momento do envio.
+async function tryLookupCliente() {
+  const docEl    = document.getElementById('documento');
+  const nomeEl   = document.getElementById('nomeCliente');
+  const telEl    = document.getElementById('telefone');
+  const emailEl  = document.getElementById('email');
+  const avisoEl  = document.getElementById('clienteAviso');
+
+  if (!docEl) return;
+  const doc = docEl.value.replace(/\D/g, '');
+
+  if (avisoEl) avisoEl.style.display = 'none';
+  if (!doc || !validateDoc(doc)) return;
+
+  try {
+    const data = await api.get(`/clientes/lookup?documento=${encodeURIComponent(doc)}`);
+    if (nomeEl  && data.nome)     nomeEl.value  = data.nome;
+    if (telEl   && data.telefone) telEl.value   = maskPhone(data.telefone);
+    if (emailEl && data.email)    emailEl.value = data.email;
+    if (avisoEl) {
+      avisoEl.textContent = '✓ Cliente já cadastrado — dados preenchidos. Pode editar se algo mudou.';
+      avisoEl.style.display = '';
+    }
+  } catch (_) {
+    // 404 = cliente novo. Qualquer outro erro também é silencioso:
+    // o pior cenário é o usuário preencher manualmente, que é o normal.
+  }
 }
 
 function initCalendar() {

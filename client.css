@@ -440,6 +440,26 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* =============================================
+   AVISO DE CLIENTE JÁ CADASTRADO
+   Aparece quando o usuário digita um CPF/CNPJ existente.
+   ============================================= */
+.cliente-aviso {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: .85rem;
+  font-weight: 500;
+  margin-bottom: 18px;
+  animation: avisoIn .25s ease-out;
+}
+@keyframes avisoIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================
    RESPONSIVIDADE – FORMULÁRIO
    ============================================= */
 @media (max-width: 768px) {

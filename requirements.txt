@@ -1,0 +1,12 @@
+# AgroMáquinas – Dependências do backend Python
+# Instale com:  pip install -r requirements.txt
+#
+# As versões ficam "presas" pelo operador "~=" (mesma major.minor,
+# atualizações de patch são permitidas). Isso garante que o aluno
+# consiga rodar o projeto hoje e daqui a 1 ano sem surpresas de
+# quebra de compatibilidade.
+
+flask>=3.0.0,<4.0.0
+flask-cors>=4.0.0,<5.0.0
+supabase>=2.7.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0

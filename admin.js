@@ -141,10 +141,16 @@ function renderList() {
   );
 }
 
+// Os dados do cliente vêm aninhados em a.clientes (JOIN feito pelo backend
+// via foreign key). Esta função extrai o cliente com fallback seguro caso
+// o JOIN venha vazio por algum motivo.
+function cli(a) { return a?.clientes || {}; }
+
 function cardHTML(a) {
   const cls = {pendente:'status-pendente','em-andamento':'status-em-andamento',finalizado:'status-finalizado'}[a.status]||'';
   const bc  = {pendente:'badge-pendente','em-andamento':'badge-em-andamento',finalizado:'badge-finalizado'}[a.status]||'badge-pendente';
   const bl  = {pendente:'Pendente','em-andamento':'Em Andamento',finalizado:'Finalizado'}[a.status]||a.status;
+  const c   = cli(a);
   return `
     <div class="agendamento-card ${cls}" data-id="${a.id}">
       <div class="card-time-col">
@@ -153,7 +159,7 @@ function cardHTML(a) {
       </div>
       <div class="card-divider"></div>
       <div class="card-info">
-        <div class="card-client">${escHtml(a.nome_cliente)}</div>
+        <div class="card-client">${escHtml(c.nome)}</div>
         <div class="card-service">${escHtml(a.tipo_servico)}</div>
         <div class="card-machine">🚜 ${escHtml(a.marca_modelo)}</div>
         <div class="card-location">📍 ${escHtml(a.localizacao)}</div>
@@ -176,7 +182,9 @@ async function openDetail(id) {
   if (!a) return;
   currentAgendId = a.id;
 
-  document.getElementById('dh-client').textContent   = a.nome_cliente;
+  const c = cli(a);
+
+  document.getElementById('dh-client').textContent   = c.nome || '';
   document.getElementById('dh-datetime').textContent = `${formatDateBR(a.data_agendamento)} às ${a.horario}`;
 
   const badgeEl = document.getElementById('d-status-badge');
@@ -187,10 +195,10 @@ async function openDetail(id) {
 
   document.getElementById('statusButtons').style.display = a.status==='finalizado' ? 'none' : '';
 
-  document.getElementById('d-nome').textContent  = a.nome_cliente;
-  document.getElementById('d-doc').textContent   = formatDoc(a.documento);
-  document.getElementById('d-tel').textContent   = formatTelDisplay(a.telefone);
-  document.getElementById('d-email').textContent = a.email;
+  document.getElementById('d-nome').textContent  = c.nome || '';
+  document.getElementById('d-doc').textContent   = formatDoc(c.documento);
+  document.getElementById('d-tel').textContent   = formatTelDisplay(c.telefone);
+  document.getElementById('d-email').textContent = c.email || '';
   document.getElementById('d-servico').textContent  = a.tipo_servico;
   document.getElementById('d-maquina').textContent  = a.tipo_maquina;
   document.getElementById('d-modelo').textContent   = a.marca_modelo;

@@ -513,3 +513,423 @@
   .admin-filters { width: 100%; }
   .filter-btn { flex: 1; text-align: center; }
 }
+
+
+/* =============================================
+   NAVEGAÇÃO ENTRE SEÇÕES (sidebar + abas mobile)
+   ============================================= */
+
+/* Garante que o atributo [hidden] sempre esconde, mesmo em elementos
+   que têm "display" definido por alguma classe. */
+.admin-main [hidden] { display: none !important; }
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e0e6e1;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-mid);
+  font-family: 'Sora', sans-serif;
+  font-size: .9rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.sidebar-nav-item .nav-ico { font-size: 1.15rem; width: 26px; text-align: center; flex-shrink: 0; }
+.sidebar-nav-item:hover { background: var(--cream-dark); color: var(--green-dark); }
+.sidebar-nav-item.active { background: var(--green-dark); color: var(--yellow); }
+
+/* Foco visível para quem navega pelo teclado */
+.sidebar-nav-item:focus-visible,
+.view-tab:focus-visible,
+.cliente-card:focus-visible,
+.maquina-head:focus-visible,
+.btn-voltar:focus-visible,
+.btn-load-more:focus-visible,
+.btn-link-agend:focus-visible,
+.search-clear:focus-visible {
+  outline: 2px solid var(--green-light);
+  outline-offset: 2px;
+}
+.sidebar-nav-item.active:focus-visible { outline-color: var(--yellow); }
+
+.sidebar-stats.first { margin-top: 0; padding-top: 0; border-top: none; }
+
+/* Sidebar fixa na rolagem (desktop): a navegação fica sempre à vista */
+@media (min-width: 901px) {
+  .admin-sidebar {
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    align-self: start;
+  }
+}
+
+/* Abas de seção – só aparecem onde a sidebar vira gaveta */
+.view-tabs { display: none; }
+.view-tab {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-mid);
+  font-family: 'Sora', sans-serif;
+  font-size: .82rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.view-tab.active { background: var(--green-dark); color: var(--yellow); }
+@media (max-width: 900px) {
+  .view-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 20px;
+    background: var(--white);
+    border: 1.5px solid #e0e6e1;
+    border-radius: 999px;
+  }
+}
+
+/* =============================================
+   ABA CLIENTES E MÁQUINAS
+   ============================================= */
+
+/* --- Busca --- */
+.search-bar { position: relative; margin-bottom: 10px; }
+.search-bar input {
+  width: 100%;
+  padding: 14px 48px;
+  border: 1.5px solid #dde3de;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--text-dark);
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;           /* 16px: evita o zoom automático do iOS ao focar */
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.search-bar input::placeholder { color: var(--text-muted); }
+.search-bar input:focus {
+  border-color: var(--green-light);
+  box-shadow: 0 0 0 4px rgba(46,107,82,.12);
+}
+.search-bar input::-webkit-search-cancel-button,
+.search-bar input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+
+.search-icon {
+  position: absolute;
+  left: 18px; top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 1rem;
+  opacity: .65;
+}
+.search-clear {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--cream-dark);
+  color: var(--text-muted);
+  font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.search-clear:hover { background: #e3e2da; color: var(--text-dark); }
+
+.search-meta {
+  min-height: 1.4em;
+  margin-bottom: 14px;
+  padding-left: 6px;
+  font-size: .82rem;
+  color: var(--text-muted);
+}
+
+/* --- Lista de clientes --- */
+.clientes-list { display: flex; flex-direction: column; gap: 12px; transition: opacity var(--transition); }
+.clientes-list.is-loading { opacity: .5; pointer-events: none; }
+
+.cliente-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  text-align: left;
+  background: var(--white);
+  color: inherit;
+  border: 1.5px solid #e0e6e1;
+  border-radius: var(--radius-md);
+  font-family: 'Sora', sans-serif;
+  transition: var(--transition);
+}
+.cliente-card:hover {
+  border-color: var(--green-light);
+  box-shadow: var(--shadow-md);
+  transform: translateX(3px);
+}
+
+.cliente-avatar {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  color: var(--yellow);
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.cliente-avatar.big { width: 64px; height: 64px; font-size: 1.4rem; }
+
+.cliente-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cliente-nome { font-weight: 700; font-size: .95rem; color: var(--text-dark); overflow-wrap: anywhere; }
+.cliente-meta {
+  display: flex; flex-wrap: wrap;
+  gap: 2px 16px;
+  font-size: .8rem;
+  color: var(--text-muted);
+}
+
+.cliente-counts {
+  flex-shrink: 0;
+  display: flex; flex-direction: column;
+  gap: 2px;
+  text-align: right;
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+.cliente-counts strong {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  color: var(--green-dark);
+}
+.cliente-chevron { flex-shrink: 0; font-size: 1.5rem; line-height: 1; color: var(--text-muted); }
+
+.load-more-wrap { display: flex; justify-content: center; margin-top: 20px; }
+.btn-load-more {
+  background: var(--white);
+  border: 1.5px solid #dde3de;
+  color: var(--green-dark);
+  padding: 11px 26px;
+  border-radius: 999px;
+  font-family: 'Sora', sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.btn-load-more:hover { background: var(--green-dark); border-color: var(--green-dark); color: var(--yellow); }
+.empty-state .btn-load-more { margin-top: 16px; }
+
+/* --- Detalhe do cliente --- */
+.btn-voltar {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 18px;
+  padding: 9px 20px;
+  background: transparent;
+  border: 1.5px solid #dde3de;
+  border-radius: 999px;
+  color: var(--text-mid);
+  font-family: 'Sora', sans-serif;
+  font-size: .82rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.btn-voltar:hover { border-color: var(--green-dark); color: var(--green-dark); }
+
+.cliente-perfil {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 26px 28px;
+  margin-bottom: 30px;
+  background: var(--green-dark);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.cliente-perfil:empty { display: none; }
+.cliente-perfil .cliente-avatar { background: var(--yellow); color: var(--green-dark); }
+.perfil-main { flex: 1; min-width: 0; }
+.perfil-main h2 { font-size: 1.4rem; color: var(--cream); overflow-wrap: anywhere; }
+.perfil-dados {
+  display: flex;
+  flex-wrap: wrap;           /* cada dado ocupa só o espaço que precisa e quebra de linha inteiro */
+  gap: 12px 36px;
+  margin-top: 16px;
+}
+.perfil-dados > div { min-width: 0; }
+.perfil-dados dt { font-size: .72rem; font-weight: 600; color: rgba(251,251,249,.55); }
+.perfil-dados dd { font-size: .9rem; color: var(--cream); overflow-wrap: break-word; word-break: break-word; }
+.perfil-dados a { color: var(--cream); border-bottom: 1px solid rgba(255,213,51,.45); transition: var(--transition); }
+.perfil-dados a:hover { color: var(--yellow); border-color: var(--yellow); }
+
+.maquinas-titulo { font-size: 1.15rem; color: var(--green-dark); margin-bottom: 14px; }
+
+/* --- Máquinas --- */
+.maquinas-list { display: flex; flex-direction: column; gap: 14px; }
+
+.maquina-card {
+  background: var(--white);
+  border: 1.5px solid #e0e6e1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.maquina-card.open { border-color: var(--green-light); box-shadow: var(--shadow-sm); }
+
+.maquina-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  font-family: 'Sora', sans-serif;
+}
+.maquina-ico {
+  flex-shrink: 0;
+  width: 52px; height: 52px;
+  border-radius: var(--radius-sm);
+  background: var(--cream-dark);
+  font-size: 1.6rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.maquina-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.maquina-modelo { font-weight: 700; font-size: 1rem; color: var(--text-dark); overflow-wrap: anywhere; }
+.maquina-tipo { font-size: .82rem; font-weight: 600; color: var(--green-light); }
+.maquina-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip {
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: var(--cream-dark);
+  color: var(--text-mid);
+  font-size: .73rem;
+  font-weight: 600;
+}
+.maquina-toggle {
+  flex-shrink: 0;
+  font-size: 1.5rem; line-height: 1;
+  color: var(--text-muted);
+  transition: transform var(--transition);
+}
+.maquina-card.open .maquina-toggle { transform: rotate(90deg); }
+
+.maquina-body {
+  padding: 4px 22px 22px;
+  background: var(--cream);
+  border-top: 1px solid #e0e6e1;
+}
+.maquina-locais { margin: 16px 0 0; font-size: .82rem; color: var(--text-muted); overflow-wrap: anywhere; }
+.historico-titulo {
+  margin: 20px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e0e6e1;
+  font-size: .88rem;
+  color: var(--text-muted);
+}
+
+/* --- Serviço dentro do histórico --- */
+.servico-item {
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  background: var(--white);
+  border: 1px solid #e0e6e1;
+  border-left: 4px solid var(--green-light);
+  border-radius: var(--radius-sm);
+}
+.servico-item:last-child { margin-bottom: 0; }
+.servico-item.status-pendente     { border-left-color: var(--yellow); }
+.servico-item.status-em-andamento { border-left-color: #60a5fa; }
+.servico-item.status-finalizado   { border-left-color: #6ee7a0; }
+
+.servico-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.servico-data { font-weight: 700; font-size: .88rem; color: var(--green-dark); }
+.servico-tipo { margin-top: 6px; font-size: .88rem; font-weight: 600; color: var(--text-dark); }
+.servico-campo { margin-top: 10px; }
+.servico-rotulo { display: block; font-size: .72rem; font-weight: 600; color: var(--text-muted); }
+.servico-campo p { font-size: .85rem; color: var(--text-mid); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.servico-relatorio {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: var(--radius-sm);
+  font-size: .85rem;
+  color: #166534;
+}
+.servico-relatorio strong { display: block; margin-bottom: 4px; }
+.servico-relatorio p { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.btn-link-agend {
+  margin-top: 14px;
+  padding: 8px 18px;
+  background: transparent;
+  border: 1.5px solid var(--green-dark);
+  border-radius: 999px;
+  color: var(--green-dark);
+  font-family: 'Sora', sans-serif;
+  font-size: .8rem;
+  font-weight: 700;
+  transition: var(--transition);
+}
+.btn-link-agend:hover { background: var(--green-dark); color: var(--yellow); }
+
+/* =============================================
+   RESPONSIVIDADE – ABA CLIENTES
+   ============================================= */
+@media (max-width: 700px) {
+  .cliente-card { flex-wrap: wrap; padding: 14px 16px; gap: 12px 14px; }
+  .cliente-chevron { display: none; }
+  .cliente-counts {
+    flex-direction: row; gap: 16px;
+    width: 100%; padding-left: 58px;   /* alinha com o texto, depois do avatar */
+    text-align: left;
+  }
+  .cliente-card:hover { transform: none; }
+
+  .cliente-perfil { flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 20px; }
+  .perfil-dados { flex-direction: column; width: 100%; }
+
+  .maquina-head { flex-wrap: wrap; padding: 16px; gap: 12px; }
+  .maquina-info { flex-basis: calc(100% - 120px); }
+  .maquina-head .card-status-badge { order: 3; margin-left: 66px; }   /* embaixo, alinhado ao texto */
+  .maquina-toggle { margin-left: auto; }
+  .maquina-body { padding: 4px 14px 18px; }
+}
+
+@media (max-width: 600px) {
+  .admin-greeting { display: none; }   /* libera espaço na topbar do celular */
+}
+
+@media (max-width: 480px) {
+  .btn-voltar { width: 100%; justify-content: center; }
+  .btn-link-agend { width: 100%; }
+  .maquina-ico { width: 44px; height: 44px; font-size: 1.35rem; }
+  .maquina-head .card-status-badge { margin-left: 56px; }
+  .cliente-counts { padding-left: 0; }
+}
+
+/* Respeita quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  .cliente-card, .maquina-toggle, .clientes-list { transition: none; }
+  .cliente-card:hover { transform: none; }
+}

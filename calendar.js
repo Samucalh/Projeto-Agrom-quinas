@@ -65,7 +65,7 @@ class BookingCalendar {
 
     const firstDay    = new Date(this.viewYear, this.viewMonth, 1).getDay();
     const daysInMonth = new Date(this.viewYear, this.viewMonth + 1, 0).getDate();
-    const todayKey    = this.today.toISOString().slice(0, 10);
+    const todayKey    = todayISO(this.today);
 
     for (let i = 0; i < firstDay; i++) {
       const e = document.createElement('div');
@@ -165,7 +165,7 @@ class MiniCalendar {
     this.today        = new Date();
     this.viewYear     = this.today.getFullYear();
     this.viewMonth    = this.today.getMonth();
-    this.selected     = this.today.toISOString().slice(0,10);
+    this.selected     = todayISO(this.today);
 
     document.getElementById(prevId)?.addEventListener('click', () => this.changeMonth(-1));
     document.getElementById(nextId)?.addEventListener('click', () => this.changeMonth(1));
@@ -180,7 +180,7 @@ class MiniCalendar {
 
     const firstDay    = new Date(this.viewYear, this.viewMonth, 1).getDay();
     const daysInMonth = new Date(this.viewYear, this.viewMonth + 1, 0).getDate();
-    const todayKey    = this.today.toISOString().slice(0,10);
+    const todayKey    = todayISO(this.today);
 
     for (let i = 0; i < firstDay; i++) {
       const el = document.createElement('button');

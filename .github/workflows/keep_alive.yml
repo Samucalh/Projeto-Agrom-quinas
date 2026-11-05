@@ -1,0 +1,17 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    - cron: '0 0 */4 * *' # Executa a cada 4 dias à meia-noite
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar Ping para o Supabase
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/keep_alive_logs" \
+          -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+          -H "Authorization: Bearer ${{ secrets.SECRETS.SUPABASE_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{"status": "automated_login_ping"}'

@@ -30,16 +30,62 @@ const MAPS_KEY = 'SUA_CHAVE_GOOGLE_MAPS_AQUI'; // ← SUBSTITUA pela sua chave
 // ── Estado global ─────────────────────────────
 let allAgendamentos = [];
 let currentFilter   = 'todos';
-let selectedDate    = new Date().toISOString().slice(0,10);
+let selectedDate    = todayISO();
 let currentAgendId  = null;
 let miniCal;
+let currentView     = 'agendamentos';   // 'agendamentos' | 'clientes'
 
 // ── Inicialização ─────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   initSidebarToggle();
+  initViewNav();
   await loadAgendamentos();
   initMiniCal();
 });
+
+// ── Navegação entre as seções do painel ───────────────────────
+// A sidebar (e as abas que aparecem no celular) alternam entre:
+//   'agendamentos' → lista + calendário (tela original)
+//   'clientes'     → clientes e máquinas (clientes.js)
+// Cada botão de navegação tem data-view-btn="..."; cada área da página
+// tem data-view-section="..." (conteúdo) e data-sidebar-panel="..." (sidebar).
+const VIEWS = ['agendamentos', 'clientes'];
+
+function initViewNav() {
+  document.querySelectorAll('[data-view-btn]').forEach(btn =>
+    btn.addEventListener('click', () => switchView(btn.dataset.viewBtn))
+  );
+  // Permite abrir direto numa seção: admin.html#clientes (e sobrevive ao F5)
+  const fromHash = window.location.hash.replace('#', '');
+  switchView(VIEWS.includes(fromHash) ? fromHash : 'agendamentos', { updateHash: false });
+}
+
+function switchView(view, { updateHash = true } = {}) {
+  if (!VIEWS.includes(view)) view = 'agendamentos';
+  currentView = view;
+
+  document.querySelectorAll('[data-view-section]').forEach(el => {
+    el.hidden = el.dataset.viewSection !== view;
+  });
+  document.querySelectorAll('[data-sidebar-panel]').forEach(el => {
+    el.hidden = el.dataset.sidebarPanel !== view;
+  });
+  document.querySelectorAll('[data-view-btn]').forEach(btn => {
+    const on = btn.dataset.viewBtn === view;
+    btn.classList.toggle('active', on);
+    if (on) btn.setAttribute('aria-current', 'page');
+    else    btn.removeAttribute('aria-current');
+  });
+
+  // No celular a sidebar é uma gaveta: fecha depois de escolher a seção
+  document.getElementById('adminSidebar')?.classList.remove('open');
+
+  if (updateHash) {
+    try { history.replaceState(null, '', '#' + view); } catch (_) { /* ignora */ }
+    window.scrollTo({ top: 0 });
+  }
+  if (view === 'clientes' && typeof showClientesView === 'function') showClientesView();
+}
 
 function initSidebarToggle() {
   const btn     = document.getElementById('sidebarToggle');
@@ -62,8 +108,7 @@ function initSidebarToggle() {
 //
 async function loadAgendamentos() {
   try {
-    const data = await api.get('/agendamentos');
-    allAgendamentos = data.agendamentos || [];
+    allAgendamentos = await fetchTodosAgendamentos();
     updateStats();
     renderList();
     updateMiniCalDots();
@@ -78,6 +123,20 @@ async function loadAgendamentos() {
           endereço da API em utils.js está correto.
         </p>
       </div>`;
+  }
+}
+
+// O backend devolve no máximo 500 agendamentos por chamada. Buscamos em
+// páginas até acabar, senão agendamentos mais novos sumiriam do painel
+// quando o total passasse do limite.
+async function fetchTodosAgendamentos() {
+  const PAGE = 500;
+  const todos = [];
+  for (let offset = 0; ; offset += PAGE) {
+    const data  = await api.get(`/agendamentos?limit=${PAGE}&offset=${offset}`);
+    const chunk = data.agendamentos || [];
+    todos.push(...chunk);
+    if (chunk.length < PAGE) return todos;
   }
 }
 
@@ -113,7 +172,7 @@ function updateMiniCalDots() { miniCal?.setAgendamentos(buildDateMap()); }
 // ── Lista de agendamentos ─────────────────────
 function setFilter(filter, btn) {
   currentFilter = filter;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.admin-filters .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderList();
 }
@@ -178,8 +237,16 @@ function updateHeader(dateStr) {
 
 // ── Modal de detalhes ─────────────────────────
 async function openDetail(id) {
-  const a = allAgendamentos.find(x => String(x.id)===String(id));
-  if (!a) return;
+  let a = allAgendamentos.find(x => String(x.id)===String(id));
+  if (!a) {
+    // Não está na lista em memória (ex.: criado depois que o painel abriu).
+    // GET /api/agendamentos/{id} traz o registro com o cliente aninhado.
+    try {
+      a = await api.get(`/agendamentos/${id}`);
+      allAgendamentos.push(a);
+      updateMiniCalDots();
+    } catch (err) { showToast(err.message, 'error'); return; }
+  }
   currentAgendId = a.id;
 
   const c = cli(a);
@@ -272,6 +339,7 @@ async function updateStatus(newStatus) {
     openDetail(currentAgendId);
     renderList();
     updateStats();
+    notifyClientesView();
   } catch(err) { showToast(err.message,'error'); }
 }
 
@@ -295,7 +363,14 @@ async function finalizarServico() {
     openDetail(currentAgendId);
     renderList();
     updateStats();
+    notifyClientesView();
   } catch(err) { showToast(err.message,'error'); }
+}
+
+// Se a mudança foi feita com a aba "Clientes" aberta (o modal pode ser aberto
+// pelo histórico de uma máquina), recarrega os dados dela. Função definida em clientes.js.
+function notifyClientesView() {
+  if (typeof refreshClientesView === 'function') refreshClientesView();
 }
 
 // ── Helpers ───────────────────────────────────

@@ -112,6 +112,14 @@ function formatDateBR(dateStr) {
   return `${d}/${m}/${y}`;
 }
 
+// Data de HOJE no fuso do navegador, no formato YYYY-MM-DD.
+// Não use new Date().toISOString().slice(0,10) para isso: o toISOString()
+// converte para UTC, e no Brasil (UTC-3) depois das 21h ele já devolve
+// o dia seguinte.
+function todayISO(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 
 // ── Helpers DOM ───────────────────────────────
 function show(el) { if(el) el.style.display=''; }

@@ -42,42 +42,86 @@
   <div class="admin-main">
 
     <!-- SIDEBAR -->
+    <!--
+      A sidebar tem duas partes:
+      1) NAVEGAÇÃO (botões com data-view-btn) – troca a seção exibida.
+      2) PAINÉIS (data-sidebar-panel) – conteúdo de apoio de cada seção;
+         só o painel da seção ativa fica visível (controlado por switchView() em admin.js).
+      Para criar uma nova seção no futuro: adicione um botão aqui, um painel,
+      uma <section data-view-section> no conteúdo e inclua o nome em VIEWS (admin.js).
+    -->
     <aside class="admin-sidebar" id="adminSidebar">
-      <div class="mini-calendar">
-        <p class="sidebar-title">Calendário</p>
-        <div class="mini-cal-header">
-          <button class="mini-cal-nav" id="miniPrev">‹</button>
-          <span id="miniMesAno"></span>
-          <button class="mini-cal-nav" id="miniNext">›</button>
+
+      <nav class="sidebar-nav" aria-label="Seções do painel">
+        <button type="button" class="sidebar-nav-item active" data-view-btn="agendamentos" aria-current="page">
+          <span class="nav-ico" aria-hidden="true">📅</span>
+          <span>Agendamentos</span>
+        </button>
+        <button type="button" class="sidebar-nav-item" data-view-btn="clientes">
+          <span class="nav-ico" aria-hidden="true">👥</span>
+          <span>Clientes e máquinas</span>
+        </button>
+      </nav>
+
+      <!-- PAINEL: AGENDAMENTOS (calendário + resumo do mês) -->
+      <div class="sidebar-panel" data-sidebar-panel="agendamentos">
+        <div class="mini-calendar">
+          <p class="sidebar-title">Calendário</p>
+          <div class="mini-cal-header">
+            <button class="mini-cal-nav" id="miniPrev">‹</button>
+            <span id="miniMesAno"></span>
+            <button class="mini-cal-nav" id="miniNext">›</button>
+          </div>
+          <div class="mini-cal-grid-header">
+            <span>D</span><span>S</span><span>T</span><span>Q</span>
+            <span>Q</span><span>S</span><span>S</span>
+          </div>
+          <div class="mini-cal-grid" id="miniCalGrid"></div>
         </div>
-        <div class="mini-cal-grid-header">
-          <span>D</span><span>S</span><span>T</span><span>Q</span>
-          <span>Q</span><span>S</span><span>S</span>
+
+        <div class="sidebar-stats">
+          <h4>Resumo do Mês</h4>
+          <div class="stat-card-mini">
+            <span class="s-icon">📅</span>
+            <div class="s-info">
+              <span class="s-num" id="statTotal">–</span>
+              <span class="s-label">Total agendamentos</span>
+            </div>
+          </div>
+          <div class="stat-card-mini">
+            <span class="s-icon">⏳</span>
+            <div class="s-info">
+              <span class="s-num" id="statPendente">–</span>
+              <span class="s-label">Pendentes</span>
+            </div>
+          </div>
+          <div class="stat-card-mini">
+            <span class="s-icon">✅</span>
+            <div class="s-info">
+              <span class="s-num" id="statFinalizado">–</span>
+              <span class="s-label">Finalizados</span>
+            </div>
+          </div>
         </div>
-        <div class="mini-cal-grid" id="miniCalGrid"></div>
       </div>
 
-      <div class="sidebar-stats">
-        <h4>Resumo do Mês</h4>
-        <div class="stat-card-mini">
-          <span class="s-icon">📅</span>
-          <div class="s-info">
-            <span class="s-num" id="statTotal">–</span>
-            <span class="s-label">Total agendamentos</span>
+      <!-- PAINEL: CLIENTES (totais gerais) -->
+      <div class="sidebar-panel" data-sidebar-panel="clientes" hidden>
+        <div class="sidebar-stats first">
+          <h4>Resumo geral</h4>
+          <div class="stat-card-mini">
+            <span class="s-icon">👥</span>
+            <div class="s-info">
+              <span class="s-num" id="statClientes">–</span>
+              <span class="s-label">Clientes cadastrados</span>
+            </div>
           </div>
-        </div>
-        <div class="stat-card-mini">
-          <span class="s-icon">⏳</span>
-          <div class="s-info">
-            <span class="s-num" id="statPendente">–</span>
-            <span class="s-label">Pendentes</span>
-          </div>
-        </div>
-        <div class="stat-card-mini">
-          <span class="s-icon">✅</span>
-          <div class="s-info">
-            <span class="s-num" id="statFinalizado">–</span>
-            <span class="s-label">Finalizados</span>
+          <div class="stat-card-mini">
+            <span class="s-icon">🚜</span>
+            <div class="s-info">
+              <span class="s-num" id="statMaquinas">–</span>
+              <span class="s-label">Máquinas registradas</span>
+            </div>
           </div>
         </div>
       </div>
@@ -85,30 +129,85 @@
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="admin-content">
-      <div class="admin-content-header">
-        <div>
-          <h2 id="contentTitle">Agendamentos de Hoje</h2>
-          <p id="contentSubtitle">Selecione um agendamento para ver os detalhes</p>
-        </div>
-        <div class="admin-filters">
-          <button class="filter-btn active" data-filter="todos"
-            onclick="setFilter('todos', this)">Todos</button>
-          <button class="filter-btn" data-filter="pendente"
-            onclick="setFilter('pendente', this)">Pendentes</button>
-          <button class="filter-btn" data-filter="em-andamento"
-            onclick="setFilter('em-andamento', this)">Em Andamento</button>
-          <button class="filter-btn" data-filter="finalizado"
-            onclick="setFilter('finalizado', this)">Finalizados</button>
-        </div>
+
+      <!-- Abas de navegação: aparecem só no celular/tablet, onde a sidebar é uma gaveta -->
+      <div class="view-tabs">
+        <button type="button" class="view-tab active" data-view-btn="agendamentos" aria-current="page">📅 Agendamentos</button>
+        <button type="button" class="view-tab" data-view-btn="clientes">👥 Clientes</button>
       </div>
 
-      <div class="agendamentos-list" id="agendamentosList">
-        <div class="empty-state">
-          <span class="empty-icon">🗓️</span>
-          <h3>Carregando agendamentos...</h3>
-          <p>Aguarde um momento.</p>
+      <!-- ══════════ SEÇÃO: AGENDAMENTOS ══════════ -->
+      <section class="admin-view" id="viewAgendamentos" data-view-section="agendamentos">
+        <div class="admin-content-header">
+          <div>
+            <h2 id="contentTitle">Agendamentos de Hoje</h2>
+            <p id="contentSubtitle">Selecione um agendamento para ver os detalhes</p>
+          </div>
+          <div class="admin-filters">
+            <button class="filter-btn active" data-filter="todos"
+              onclick="setFilter('todos', this)">Todos</button>
+            <button class="filter-btn" data-filter="pendente"
+              onclick="setFilter('pendente', this)">Pendentes</button>
+            <button class="filter-btn" data-filter="em-andamento"
+              onclick="setFilter('em-andamento', this)">Em Andamento</button>
+            <button class="filter-btn" data-filter="finalizado"
+              onclick="setFilter('finalizado', this)">Finalizados</button>
+          </div>
         </div>
-      </div>
+
+        <div class="agendamentos-list" id="agendamentosList">
+          <div class="empty-state">
+            <span class="empty-icon">🗓️</span>
+            <h3>Carregando agendamentos...</h3>
+            <p>Aguarde um momento.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ SEÇÃO: CLIENTES E MÁQUINAS ══════════ -->
+      <!--
+        Duas telas dentro da mesma seção (controladas por clientes.js):
+          1) Lista de clientes + busca por nome ou CPF/CNPJ
+          2) Detalhe do cliente: dados de contato + lista de máquinas
+             (cada máquina abre o histórico de serviços)
+      -->
+      <section class="admin-view" id="viewClientes" data-view-section="clientes" hidden>
+
+        <!-- Tela 1: lista de clientes -->
+        <div id="clientesListaView">
+          <div class="admin-content-header">
+            <div>
+              <h2>Clientes</h2>
+              <p>Escolha um cliente para ver as máquinas dele</p>
+            </div>
+          </div>
+
+          <div class="search-bar" role="search">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="clienteBusca" placeholder="Buscar por nome ou CPF/CNPJ"
+                   aria-label="Buscar cliente por nome ou CPF/CNPJ"
+                   autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" />
+            <button type="button" class="search-clear" id="clienteBuscaLimpar"
+                    aria-label="Limpar busca" hidden>✕</button>
+          </div>
+          <p class="search-meta" id="clientesInfo" aria-live="polite"></p>
+
+          <div class="clientes-list" id="clientesList"></div>
+
+          <div class="load-more-wrap" id="clientesMais" hidden>
+            <button type="button" class="btn-load-more" id="clientesMaisBtn">Carregar mais clientes</button>
+          </div>
+        </div>
+
+        <!-- Tela 2: detalhe do cliente + máquinas -->
+        <div id="clienteDetalheView" hidden>
+          <button type="button" class="btn-voltar" id="btnVoltarClientes">← Voltar para clientes</button>
+          <div class="cliente-perfil" id="clientePerfil"></div>
+          <h3 class="maquinas-titulo" id="maquinasTitulo">Máquinas</h3>
+          <div class="maquinas-list" id="maquinasList"></div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -209,11 +308,13 @@
   </div>
 
   <!--
-    SCRIPTS – ordem obrigatória: utils.js → calendar.js → admin.js
+    SCRIPTS – ordem obrigatória: utils.js → calendar.js → admin.js → clientes.js
+    (clientes.js usa funções do admin.js, como escHtml e openDetail.)
     Todos os arquivos devem estar na mesma pasta que admin.html.
   -->
   <script src="utils.js"></script>
   <script src="calendar.js"></script>
   <script src="admin.js"></script>
+  <script src="clientes.js"></script>
 </body>
 </html>

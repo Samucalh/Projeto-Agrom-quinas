@@ -48,7 +48,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from supabase import create_client, Client
 from dotenv import load_dotenv
-import os, re
+import os, re, unicodedata
 from datetime import datetime, date
 from calendar import monthrange
 
@@ -140,6 +140,37 @@ def is_valid_document(doc: str) -> bool:
     return False
 
 
+# ── Utilidades do painel "Clientes e Máquinas" ────────────────────────────────
+def _norm_text(s) -> str:
+    """Minúsculas, sem acentos e sem espaços duplicados.
+    Ex.: '  João   DA Silva ' → 'joao da silva'. Usado na busca e para
+    reconhecer que 'John Deere 5075E' e 'john deere  5075e' são a mesma máquina."""
+    s = unicodedata.normalize('NFKD', str(s or ''))
+    s = ''.join(c for c in s if not unicodedata.combining(c))
+    return re.sub(r'\s+', ' ', s).strip().lower()
+
+def _machine_key(ag: dict) -> tuple:
+    """Identifica uma máquina dentro de um cliente.
+    O banco NÃO tem tabela de máquinas: cada agendamento guarda os dados da
+    máquina. Então consideramos a "mesma máquina" quando tipo + marca/modelo +
+    ano são iguais (ignorando acentos, maiúsculas e espaços extras)."""
+    return (_norm_text(ag.get('tipo_maquina')),
+            _norm_text(ag.get('marca_modelo')),
+            ag.get('ano_maquina') or None)
+
+def _fetch_all(build_query, page_size: int = 1000) -> list:
+    """O Supabase devolve no máximo 1000 linhas por consulta. Esta função
+    busca página por página até acabar. `build_query` é uma função que
+    monta a consulta do zero (ex.: lambda: supabase.table('x').select('*'))."""
+    rows, offset = [], 0
+    while True:
+        chunk = build_query().range(offset, offset + page_size - 1).execute().data or []
+        rows.extend(chunk)
+        if len(chunk) < page_size:
+            return rows
+        offset += page_size
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ROTAS
 # ══════════════════════════════════════════════════════════════════════════════
@@ -148,7 +179,7 @@ def is_valid_document(doc: str) -> bool:
 @app.route('/api/health', methods=['GET'])
 def health():
     """Teste: http://localhost:5000/api/health → deve retornar {"status":"ok"}"""
-    return ok({'status': 'ok', 'service': 'AgroMáquinas API', 'version': '2.0.0'})
+    return ok({'status': 'ok', 'service': 'AgroMáquinas API', 'version': '2.1.0'})
 
 
 # ── Upsert de cliente (helper interno) ────────────────────────────────────────
@@ -224,6 +255,170 @@ def lookup_cliente():
         return err(f"Erro ao consultar cliente: {e}", 500)
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# CLIENTES E MÁQUINAS  (aba "Clientes e Máquinas" do painel admin)
+# ══════════════════════════════════════════════════════════════════════════════
+# Agendamentos CANCELADOS ficam de fora das contagens e da lista de máquinas,
+# seguindo a mesma regra da view `slots_ocupados` (só o que está "ativo" conta).
+CLIENTE_COLS = 'id, nome, documento, telefone, email, created_at'
+
+# ── Totais para a sidebar ─────────────────────────────────────────────────────
+@app.route('/api/clientes/resumo', methods=['GET'])
+def resumo_clientes():
+    """
+    GET /api/clientes/resumo
+    Retorna { total_clientes, total_maquinas }.
+    Chamado por clientes.js → carregarResumoClientes().
+    """
+    try:
+        total_clientes = (supabase.table('clientes')
+                          .select('id', count='exact')
+                          .limit(1).execute().count or 0)
+
+        ags = _fetch_all(lambda: (supabase.table('agendamentos')
+                                  .select('cliente_id, tipo_maquina, marca_modelo, ano_maquina')
+                                  .neq('status', 'cancelado')
+                                  .order('id')))
+        maquinas = {(a['cliente_id'], _machine_key(a)) for a in ags}
+        return ok({'total_clientes': total_clientes, 'total_maquinas': len(maquinas)})
+    except Exception as e:
+        return err(f"Erro ao calcular resumo: {e}", 500)
+
+
+# ── Listar / buscar clientes ──────────────────────────────────────────────────
+@app.route('/api/clientes', methods=['GET'])
+def list_clientes():
+    """
+    GET /api/clientes?busca=silva&limit=50&offset=0
+    Chamado por clientes.js → carregarClientes().
+
+    `busca` procura pelo NOME (sem diferenciar acentos/maiúsculas; todas as
+    palavras digitadas precisam aparecer) ou pelo CPF/CNPJ (basta digitar parte
+    dos números, com ou sem pontuação).
+
+    Cada cliente volta com: total_agendamentos, total_maquinas e
+    ultimo_agendamento. `total` é a quantidade de clientes que bateram com a
+    busca (para o botão "carregar mais").
+    """
+    try:
+        busca  = sanitize_str(request.args.get('busca', ''), 100) or ''
+        limit  = max(1, min(int(request.args.get('limit', 50)), 200))
+        offset = max(0, int(request.args.get('offset', 0)))
+    except ValueError:
+        return err('Parâmetros limit/offset inválidos.', 422)
+
+    try:
+        clientes = _fetch_all(lambda: supabase.table('clientes').select(CLIENTE_COLS).order('id'))
+
+        termo = _norm_text(busca)
+        if termo:
+            palavras  = termo.split(' ')
+            digitos   = _only_digits(busca)
+            # "só números" = o texto digitado tem apenas dígitos e pontuação de CPF/CNPJ
+            so_numero = bool(digitos) and bool(re.fullmatch(r'[\d.\-/\s]+', busca))
+
+            def bate(c):
+                nome_ok = all(p in _norm_text(c.get('nome')) for p in palavras)
+                if so_numero:
+                    return nome_ok or digitos in (c.get('documento') or '')
+                return nome_ok
+            clientes = [c for c in clientes if bate(c)]
+
+        clientes.sort(key=lambda c: _norm_text(c.get('nome')))
+        total = len(clientes)
+        pagina = clientes[offset:offset + limit]
+
+        # Contagens só da página devolvida (evita varrer o banco inteiro)
+        stats = {}
+        if pagina:
+            ids = [c['id'] for c in pagina]
+            ags = _fetch_all(lambda: (supabase.table('agendamentos')
+                                      .select('cliente_id, tipo_maquina, marca_modelo, ano_maquina, data_agendamento')
+                                      .in_('cliente_id', ids)
+                                      .neq('status', 'cancelado')
+                                      .order('id')))
+            for a in ags:
+                s = stats.setdefault(a['cliente_id'], {'maquinas': set(), 'total': 0, 'ultimo': None})
+                s['maquinas'].add(_machine_key(a))
+                s['total'] += 1
+                if not s['ultimo'] or a['data_agendamento'] > s['ultimo']:
+                    s['ultimo'] = a['data_agendamento']
+
+        for c in pagina:
+            s = stats.get(c['id'])
+            c['total_agendamentos']  = s['total'] if s else 0
+            c['total_maquinas']      = len(s['maquinas']) if s else 0
+            c['ultimo_agendamento']  = s['ultimo'] if s else None
+
+        return ok({'clientes': pagina, 'total': total, 'count': len(pagina), 'offset': offset})
+    except Exception as e:
+        return err(f"Erro ao buscar clientes: {e}", 500)
+
+
+# ── Máquinas de um cliente (com histórico de serviços) ────────────────────────
+@app.route('/api/clientes/<int:cliente_id>/maquinas', methods=['GET'])
+def list_maquinas_cliente(cliente_id):
+    """
+    GET /api/clientes/{id}/maquinas
+    Chamado por clientes.js → carregarMaquinas().
+
+    Agrupa os agendamentos do cliente por máquina (veja _machine_key). Retorna:
+      { cliente: {...},
+        maquinas: [ { chave, tipo_maquina, marca_modelo, ano_maquina,
+                      total_servicos, ultimo_servico, ultimo_status,
+                      localizacoes: [...],
+                      servicos: [ {id, data_agendamento, horario, tipo_servico,
+                                   descricao_problema, localizacao, status,
+                                   relatorio_conclusao, finalizado_em}, ... ] } ],
+        total_maquinas }
+    Máquinas e serviços vêm do mais recente para o mais antigo.
+    """
+    try:
+        res = (supabase.table('clientes').select(CLIENTE_COLS)
+               .eq('id', cliente_id).limit(1).execute())
+        if not res.data:
+            return err('Cliente não encontrado.', 404)
+        cliente = res.data[0]
+
+        ags = _fetch_all(lambda: (supabase.table('agendamentos')
+                                  .select('id, tipo_servico, tipo_maquina, marca_modelo, ano_maquina, '
+                                          'descricao_problema, localizacao, data_agendamento, horario, '
+                                          'status, relatorio_conclusao, finalizado_em')
+                                  .eq('cliente_id', cliente_id)
+                                  .neq('status', 'cancelado')
+                                  .order('id')))
+        ags.sort(key=lambda a: (a.get('data_agendamento') or '', a.get('horario') or ''), reverse=True)
+
+        grupos = {}   # dicionário mantém a ordem de inserção → máquina mais recente primeiro
+        for a in ags:
+            chave = _machine_key(a)
+            g = grupos.get(chave)
+            if g is None:
+                g = grupos[chave] = {
+                    'chave':          '|'.join(str(x) for x in chave),
+                    'tipo_maquina':   a.get('tipo_maquina'),
+                    'marca_modelo':   a.get('marca_modelo'),
+                    'ano_maquina':    a.get('ano_maquina'),
+                    'total_servicos': 0,
+                    'ultimo_servico': a.get('data_agendamento'),
+                    'ultimo_status':  a.get('status'),
+                    'localizacoes':   [],
+                    'servicos':       [],
+                }
+            g['total_servicos'] += 1
+            loc = a.get('localizacao')
+            if loc and loc not in g['localizacoes']:
+                g['localizacoes'].append(loc)
+            g['servicos'].append({k: a.get(k) for k in (
+                'id', 'data_agendamento', 'horario', 'tipo_servico', 'descricao_problema',
+                'localizacao', 'status', 'relatorio_conclusao', 'finalizado_em')})
+
+        maquinas = list(grupos.values())
+        return ok({'cliente': cliente, 'maquinas': maquinas, 'total_maquinas': len(maquinas)})
+    except Exception as e:
+        return err(f"Erro ao buscar máquinas do cliente: {e}", 500)
+
+
 # ── Listar agendamentos ───────────────────────────────────────────────────────
 @app.route('/api/agendamentos', methods=['GET'])
 def list_agendamentos():
@@ -247,6 +442,7 @@ def list_agendamentos():
                  .select('*, clientes(*)')
                  .order('data_agendamento', desc=False)
                  .order('horario', desc=False)
+                 .order('id', desc=False)   # desempate: mantém a paginação estável
                  .range(offset, offset + limit - 1))
 
         if data_filtro:   query = query.eq('data_agendamento', data_filtro)

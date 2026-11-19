@@ -7,8 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="admin.css" />
+  <!--
+    O "?v=..." no fim dos arquivos obriga o navegador a baixar a versão nova
+    em vez de usar a antiga guardada em cache. Sempre que alterar um CSS/JS,
+    aumente esse número (ex.: v=2026-11-19b) aqui e nos <script> do final.
+  -->
+  <link rel="stylesheet" href="style.css?v=2026-11-19" />
+  <link rel="stylesheet" href="admin.css?v=2026-11-19" />
 </head>
 <body class="admin-body">
 
@@ -326,9 +331,9 @@
     (clientes.js usa funções do admin.js, como escHtml e openDetail.)
     Todos os arquivos devem estar na mesma pasta que admin.html.
   -->
-  <script src="utils.js"></script>
-  <script src="calendar.js"></script>
-  <script src="admin.js"></script>
-  <script src="clientes.js"></script>
+  <script src="utils.js?v=2026-11-19"></script>
+  <script src="calendar.js?v=2026-11-19"></script>
+  <script src="admin.js?v=2026-11-19"></script>
+  <script src="clientes.js?v=2026-11-19"></script>
 </body>
 </html>

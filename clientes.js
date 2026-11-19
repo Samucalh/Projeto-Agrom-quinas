@@ -93,9 +93,10 @@ function initClientesView() {
   });
 
   // Tela 3: voltar / imprimir / filtrar histórico / abrir agendamento
-  document.getElementById('btnVoltarMaquinas').addEventListener('click', voltarParaMaquinas);
-  document.getElementById('btnImprimirProntuario').addEventListener('click', () => window.print());
-  document.getElementById('prontuario').addEventListener('click', e => {
+  // (com "?." para não travar a aba se o navegador tiver um admin.html antigo em cache)
+  document.getElementById('btnVoltarMaquinas')?.addEventListener('click', voltarParaMaquinas);
+  document.getElementById('btnImprimirProntuario')?.addEventListener('click', () => window.print());
+  document.getElementById('prontuario')?.addEventListener('click', e => {
     const filtro = e.target.closest('[data-filtro-hist]');
     if (filtro) return aplicarFiltroHistorico(filtro.dataset.filtroHist);
     const btn = e.target.closest('[data-abrir-agend]');
@@ -123,7 +124,8 @@ function mostrarTela(tela) {
   cv.tela = tela;
   document.getElementById('clientesListaView').hidden  = tela !== 'lista';
   document.getElementById('clienteDetalheView').hidden = tela !== 'detalhe';
-  document.getElementById('prontuarioView').hidden     = tela !== 'prontuario';
+  const pront = document.getElementById('prontuarioView');
+  if (pront) pront.hidden = tela !== 'prontuario';
 }
 
 // ══════════════════════════════════════════════

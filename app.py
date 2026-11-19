@@ -333,20 +333,25 @@ def list_clientes():
         if pagina:
             ids = [c['id'] for c in pagina]
             ags = _fetch_all(lambda: (supabase.table('agendamentos')
-                                      .select('cliente_id, tipo_maquina, marca_modelo, ano_maquina, data_agendamento')
+                                      .select('cliente_id, tipo_maquina, marca_modelo, ano_maquina, '
+                                              'data_agendamento, status')
                                       .in_('cliente_id', ids)
                                       .neq('status', 'cancelado')
                                       .order('id')))
             for a in ags:
-                s = stats.setdefault(a['cliente_id'], {'maquinas': set(), 'total': 0, 'ultimo': None})
+                s = stats.setdefault(a['cliente_id'],
+                                     {'maquinas': set(), 'total': 0, 'concluidos': 0, 'ultimo': None})
                 s['maquinas'].add(_machine_key(a))
                 s['total'] += 1
+                if a.get('status') == 'finalizado':
+                    s['concluidos'] += 1
                 if not s['ultimo'] or a['data_agendamento'] > s['ultimo']:
                     s['ultimo'] = a['data_agendamento']
 
         for c in pagina:
             s = stats.get(c['id'])
             c['total_agendamentos']  = s['total'] if s else 0
+            c['total_concluidos']    = s['concluidos'] if s else 0
             c['total_maquinas']      = len(s['maquinas']) if s else 0
             c['ultimo_agendamento']  = s['ultimo'] if s else None
 
@@ -362,15 +367,18 @@ def list_maquinas_cliente(cliente_id):
     GET /api/clientes/{id}/maquinas
     Chamado por clientes.js → carregarMaquinas().
 
+    É a fonte de dados do "prontuário" de cada máquina no painel.
     Agrupa os agendamentos do cliente por máquina (veja _machine_key). Retorna:
       { cliente: {...},
         maquinas: [ { chave, tipo_maquina, marca_modelo, ano_maquina,
-                      total_servicos, ultimo_servico, ultimo_status,
-                      localizacoes: [...],
+                      total_servicos, total_concluidos, total_em_aberto,
+                      primeiro_servico, ultimo_servico, ultimo_status,
+                      ultima_conclusao, localizacoes: [...],
                       servicos: [ {id, data_agendamento, horario, tipo_servico,
                                    descricao_problema, localizacao, status,
-                                   relatorio_conclusao, finalizado_em}, ... ] } ],
-        total_maquinas }
+                                   relatorio_conclusao, finalizado_em,
+                                   created_at}, ... ] } ],
+        total_maquinas, total_servicos, total_concluidos }
     Máquinas e serviços vêm do mais recente para o mais antigo.
     """
     try:
@@ -383,11 +391,12 @@ def list_maquinas_cliente(cliente_id):
         ags = _fetch_all(lambda: (supabase.table('agendamentos')
                                   .select('id, tipo_servico, tipo_maquina, marca_modelo, ano_maquina, '
                                           'descricao_problema, localizacao, data_agendamento, horario, '
-                                          'status, relatorio_conclusao, finalizado_em')
+                                          'status, relatorio_conclusao, finalizado_em, created_at')
                                   .eq('cliente_id', cliente_id)
                                   .neq('status', 'cancelado')
                                   .order('id')))
-        ags.sort(key=lambda a: (a.get('data_agendamento') or '', a.get('horario') or ''), reverse=True)
+        ags.sort(key=lambda a: (a.get('data_agendamento') or '', a.get('horario') or '', a.get('id') or 0),
+                 reverse=True)
 
         grupos = {}   # dicionário mantém a ordem de inserção → máquina mais recente primeiro
         for a in ags:
@@ -399,22 +408,40 @@ def list_maquinas_cliente(cliente_id):
                     'tipo_maquina':   a.get('tipo_maquina'),
                     'marca_modelo':   a.get('marca_modelo'),
                     'ano_maquina':    a.get('ano_maquina'),
-                    'total_servicos': 0,
-                    'ultimo_servico': a.get('data_agendamento'),
-                    'ultimo_status':  a.get('status'),
-                    'localizacoes':   [],
-                    'servicos':       [],
+                    'total_servicos':   0,
+                    'total_concluidos': 0,
+                    'total_em_aberto':  0,
+                    'primeiro_servico': a.get('data_agendamento'),
+                    'ultimo_servico':   a.get('data_agendamento'),
+                    'ultimo_status':    a.get('status'),
+                    'ultima_conclusao': None,
+                    'localizacoes':     [],
+                    'servicos':         [],
                 }
             g['total_servicos'] += 1
+            # Como a lista está do mais recente para o mais antigo, o último
+            # visto é o primeiro atendimento da máquina.
+            g['primeiro_servico'] = a.get('data_agendamento')
+            if a.get('status') == 'finalizado':
+                g['total_concluidos'] += 1
+                fim = a.get('finalizado_em')
+                if fim and (not g['ultima_conclusao'] or fim > g['ultima_conclusao']):
+                    g['ultima_conclusao'] = fim
+            else:
+                g['total_em_aberto'] += 1
             loc = a.get('localizacao')
             if loc and loc not in g['localizacoes']:
                 g['localizacoes'].append(loc)
             g['servicos'].append({k: a.get(k) for k in (
                 'id', 'data_agendamento', 'horario', 'tipo_servico', 'descricao_problema',
-                'localizacao', 'status', 'relatorio_conclusao', 'finalizado_em')})
+                'localizacao', 'status', 'relatorio_conclusao', 'finalizado_em', 'created_at')})
 
         maquinas = list(grupos.values())
-        return ok({'cliente': cliente, 'maquinas': maquinas, 'total_maquinas': len(maquinas)})
+        return ok({'cliente':          cliente,
+                   'maquinas':         maquinas,
+                   'total_maquinas':   len(maquinas),
+                   'total_servicos':   len(ags),
+                   'total_concluidos': sum(m['total_concluidos'] for m in maquinas)})
     except Exception as e:
         return err(f"Erro ao buscar máquinas do cliente: {e}", 500)
 

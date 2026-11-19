@@ -166,10 +166,12 @@
 
       <!-- ══════════ SEÇÃO: CLIENTES E MÁQUINAS ══════════ -->
       <!--
-        Duas telas dentro da mesma seção (controladas por clientes.js):
+        Três telas dentro da mesma seção (controladas por clientes.js):
           1) Lista de clientes + busca por nome ou CPF/CNPJ
           2) Detalhe do cliente: dados de contato + lista de máquinas
-             (cada máquina abre o histórico de serviços)
+          3) Prontuário da máquina: ficha da máquina, dados do cliente,
+             resumo e histórico completo de atendimentos com os
+             relatórios de conclusão (pode ser impresso / salvo em PDF)
       -->
       <section class="admin-view" id="viewClientes" data-view-section="clientes" hidden>
 
@@ -203,8 +205,20 @@
         <div id="clienteDetalheView" hidden>
           <button type="button" class="btn-voltar" id="btnVoltarClientes">← Voltar para clientes</button>
           <div class="cliente-perfil" id="clientePerfil"></div>
-          <h3 class="maquinas-titulo" id="maquinasTitulo">Máquinas</h3>
+          <div class="maquinas-titulo-wrap">
+            <h3 class="maquinas-titulo" id="maquinasTitulo">Máquinas</h3>
+            <p class="maquinas-sub">Toque numa máquina para abrir o prontuário dela</p>
+          </div>
           <div class="maquinas-list" id="maquinasList"></div>
+        </div>
+
+        <!-- Tela 3: prontuário da máquina -->
+        <div id="prontuarioView" hidden>
+          <div class="prontuario-acoes">
+            <button type="button" class="btn-voltar" id="btnVoltarMaquinas">← Voltar para as máquinas</button>
+            <button type="button" class="btn-imprimir" id="btnImprimirProntuario">🖨️ Imprimir / salvar PDF</button>
+          </div>
+          <article class="prontuario" id="prontuario" aria-labelledby="prontuarioTitulo"></article>
         </div>
       </section>
 

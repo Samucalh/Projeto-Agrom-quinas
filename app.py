@@ -60,7 +60,7 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'agromaquinas-dev-troque-em-p
 # ── CORS ──────────────────────────────────────────────────────────────────────
 # Em produção, substitua "*" pelo domínio real do seu site:
 # Ex: {"origins": "https://www.agromaquinas.com.br"}
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app, resources={r"/api/*": {"https://shimmering-bunny-ea78d9.netlify.app"}})
 
 # ── Conexão Supabase ──────────────────────────────────────────────────────────
 # Usamos a service_role key porque este backend é confiável (roda no servidor,
